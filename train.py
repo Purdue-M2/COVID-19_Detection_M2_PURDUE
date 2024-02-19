@@ -124,7 +124,6 @@ def train_epoch(model, optimizer, scheduler, criterion, train_loader,loss_type):
     auc = roc_auc_score(all_labels, all_predictions)
     f1 = f1_score(all_labels, all_predictions)
 
-    # For TPR (Sensitivity) and FOR calculation, you might need confusion matrix
     tn, fp, fn, tp = confusion_matrix(all_labels, all_predictions).ravel()
     tpr = tp / (tp + fn)  # True Positive Rate
     fpr = fp / (fp + tn)  # False Positive Rate
