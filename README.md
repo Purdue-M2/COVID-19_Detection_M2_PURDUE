@@ -6,4 +6,29 @@
 
 ### 3. Train the model 
 #### Task1
-load 'train_clip.h5', 'train.txt' for train_dataset in [train.py](./train.py)
+* load 'data/train_clip.h5', 'data/train.txt' for train_dataset in [train.py](./train.py); load 'data/val_clip.h5', 'data/val.txt' for val_dataset in [train.py](./train.py);
+
+```python
+    train_dataset = UniAttackDataset(
+    hdf5_filename='data/train_clip.h5',
+    labels_filename='data/train.txt',
+    dataset_name='train_features'
+)
+    val_dataset = UniAttackDataset(
+    hdf5_filename='data/val_clip.h5',
+    labels_filename='data/val.txt',
+    dataset_name='val_features'
+)
+```
+
+* Use CVaR
+
+```python
+model_trainer(loss_type='dag', batch_size=32, num_epochs=32)
+```
+
+* Use CVaR with AUC loss
+
+```python
+model_trainer(loss_type='auc', batch_size=32, num_epochs=32)
+```
