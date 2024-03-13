@@ -37,24 +37,6 @@ def search_func(losses, alpha):
 def searched_lamda_loss(losses, searched_lamda, alpha):
     return searched_lamda + ((1.0/alpha)*torch.mean(threshplus_tensor(losses-searched_lamda))) 
 
-def calculate_L_AUC(P_scores, N_scores, gamma, p):
-    # Convert scores to column and row vectors respectively
-    P_scores = P_scores.unsqueeze(1)  # Make it a column vector
-    N_scores = N_scores.unsqueeze(0)  # Make it a row vector
-
-    # Compute the margin matrix in a vectorized form
-    margin_matrix = P_scores - N_scores - gamma
-
-    # Apply the ReLU-like condition and raise to power p
-    loss_matrix = torch.where(margin_matrix < 0, (-margin_matrix) ** p, torch.zeros_like(margin_matrix))
-
-    # Compute the final L_AUC by averaging over all elements
-    L_AUC = loss_matrix.mean()
-
-    return L_AUC
-
-
-
 def train_epoch(model, optimizer, scheduler, criterion, train_loader,loss_type):
     model.train()
     total_loss_accumulator = 0
