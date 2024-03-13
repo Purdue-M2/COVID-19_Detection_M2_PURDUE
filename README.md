@@ -2,7 +2,7 @@
 
 ### 1. [Data is provided by the 4th COV19D Competition](https://mlearn.lincoln.ac.uk/ai-mia-cov19d-competition/), from [paper](https://arxiv.org/pdf/2403.02192v2.pdf) 
 
-### 2. Put the 'data' folder under the Challenge3 directory, use [CLIP ViT L/14](https://github.com/openai/CLIP) to extract image features and save them into h5 file (e.g., `train_clip.h5' and `val_clip.h5') 
+### 2. Put the 'data' folder under the Challenge3 directory, use [CLIP ViT L/14](https://github.com/openai/CLIP) to extract image features and save them into h5 file (e.g., train_clip.h5 and val_clip.h5) 
 
 ### 3. Train the model 
 #### Supervised Learning
