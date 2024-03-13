@@ -5,7 +5,7 @@
 ### 2. Put the 'data' folder under the Challenge3 directory.
 
 ### 3. Train the model 
-#### Task1
+#### Supervised Learning
 * load 'data/train_clip.h5', 'data/train.txt' for train_dataset in [train.py](./train.py); load 'data/val_clip.h5', 'data/val.txt' for val_dataset in [train.py](./train.py).
 
 ```python
@@ -38,7 +38,7 @@ After getting the best alpha_cvar, tune **alpha**, the weight trade-off between 
 ```python
 model_trainer(loss_type='auc', batch_size=32, num_epochs=32)
 ```
-#### Task2
+#### Semi-Supervised Learning
 * Train teacher model
   * Load 'data/all_train_teach.h5', 'data/combined_train.txt' for train_dataset in [train.py](./train.py); load 'data/task2_val_clip_vit.h5', 'data/task2_val.txt' for val_dataset in [train.py](./train.py).
   * Tune the hyperparameter as Task1.
