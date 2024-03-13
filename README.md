@@ -1,10 +1,16 @@
 # Robust COVID-19 Detection in CT Image with CLIP
 
-### 1. [Data is provided by the 4th COV19D Competition](https://mlearn.lincoln.ac.uk/ai-mia-cov19d-competition/), from [paper](https://arxiv.org/pdf/2403.02192v2.pdf) 
+### 1. Data Preparation
+* [Data is provided by the 4th COV19D Competition](https://mlearn.lincoln.ac.uk/ai-mia-cov19d-competition/), from [paper](https://arxiv.org/pdf/2403.02192v2.pdf). 
 
-### 2. Put the 'data' folder under the Challenge3 directory, use [CLIP ViT L/14](https://github.com/openai/CLIP) to extract image features and save them into h5 file (e.g., train_clip.h5 and val_clip.h5) 
+* After getting the Covid-19 CT scan data, use [CLIP ViT L/14](https://github.com/openai/CLIP) to extract image features and save them into h5 file (e.g., train_clip.h5 and val_clip.h5) by executing [clip_feature.py](./clip_feature.py). 
+```python
+python clip_feature.py
+```
 
-### 3. Train the model 
+* Put the processed h5 file under the data directory.
+
+### 2. Train the model 
 #### Supervised Learning
 * load 'data/train_clip.h5', 'data/train.txt' for train_dataset in [train.py](./train.py); load 'data/val_clip.h5', 'data/val.txt' for val_dataset in [train.py](./train.py).
 
@@ -32,16 +38,10 @@ model_trainer(loss_type='dag', batch_size=32, num_epochs=32)
 ```
 Tune **alpha_cvar** in dag loss to find the best hyperparameter. 
 
-* Use CVaR with AUC loss
-
-After getting the best alpha_cvar, tune **alpha**, the weight trade-off between cvar and auc. There are also **gamma** and **p** that need to be tuned.
-```python
-model_trainer(loss_type='auc', batch_size=32, num_epochs=32)
-```
 #### Semi-Supervised Learning
 * Train teacher model
   * Load 'data/all_train_teach.h5', 'data/combined_train.txt' for train_dataset in [train.py](./train.py); load 'data/task2_val_clip_vit.h5', 'data/task2_val.txt' for val_dataset in [train.py](./train.py).
-  * Tune the hyperparameter as Task1.
+  * Tune the hyperparameter as in supervised learning.
   * The checkpoints will be saved in 'checkpoints_teach/' folder.
 
 * Train student model
@@ -58,5 +58,14 @@ model_trainer(loss_type='auc', batch_size=32, num_epochs=32)
   python train.py
   ```
   *  Tune the hyperparameter while training the student model.
+
+**Note**: Metrics like ACC and F1 scores recorded during training are calculated on the image sample level. To produce the same results as reported in the paper, you should take into account that there exists only a single label for the whole CT scan and no labels for each CT scan image.
+    
+### 3. Predict on test data
+Execute [predict_CT_scans.py](./predict_CT_scans.py) will generate a CSV file that contains CT scan folder name and its label.
+```python
+python predict_CT_scans.py
+```
+
   
 
