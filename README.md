@@ -1,8 +1,8 @@
 # Robust COVID-19 Detection in CT Image with CLIP
 
-### 1. [download processed data](https://purdue0-my.sharepoint.com/:u:/g/personal/lin1785_purdue_edu/EYUCs8e0GjtKqkttn3mhEJUBwE5SWi9Nxk4288twnGJw9Q?e=HcaPv6)
+### 1. [Data is provided by the 4th COV19D Competition](https://mlearn.lincoln.ac.uk/ai-mia-cov19d-competition/), from [paper](https://arxiv.org/pdf/2403.02192v2.pdf) 
 
-### 2. Put the 'data' folder under the Challenge3 directory.
+### 2. Put the 'data' folder under the Challenge3 directory, use [CLIP ViT L/14](https://github.com/openai/CLIP) to extract image features and save them into h5 file (e.g., `train_clip.h5' and `val_clip.h5') 
 
 ### 3. Train the model 
 #### Supervised Learning
