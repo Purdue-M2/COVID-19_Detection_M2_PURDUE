@@ -19,8 +19,8 @@ from DFAD_model_base import DFADModel
 import os
 
 
-checkpoint_dir = 'checkpoints_stu'
-metrics_file_path = 'traing_log_stu.txt' 
+checkpoint_dir = 'checkpoints_task1'
+metrics_file_path = 'traing_log_task1.txt' 
 os.makedirs(checkpoint_dir, exist_ok=True)
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -61,48 +61,37 @@ def train_epoch(model, optimizer, scheduler, criterion, train_loader,loss_type):
     all_labels = []
     all_predictions = []
     alpha_cvar = 0.5
-    #------------- L_AUC parameter-------------------#
-    gamma = 0.6 #(0,1]
-    p = 2 # >1
-    alpha = 0.6
-    #------------- L_AUC parameter-------------------#
 
-    def calculate_loss(output, labels, loss_type, criterion, compute_auc=False):
+
+    def calculate_loss(output, labels, loss_type, criterion):
     
         loss_ce = criterion(output, labels)
         # Directly return loss_ce for 'erm' loss type
         if loss_type == 'erm':
             return loss_ce
 
-        # For 'dag' and 'auc' loss types, perform additional computations
-        if loss_type in ['dag', 'auc']:
+        # For 'dag' loss types, perform additional computations
+        if loss_type in ['dag']:
             chi_loss_np = search_func(loss_ce, alpha_cvar)
             cutpt = optimize.fminbound(chi_loss_np, np.min(loss_ce.cpu().detach().numpy()) - 1000.0, np.max(loss_ce.cpu().detach().numpy()))
             loss = searched_lamda_loss(loss_ce, cutpt, alpha_cvar)
-            
-            # If compute_auc is True and loss_type is 'auc', compute the AUC component
-            if compute_auc and loss_type == 'auc':
-                positive_scores = output[labels == 1]
-                negative_scores = output[labels == 0]
-                loss_auc = calculate_L_AUC(positive_scores, negative_scores, gamma, p)
-                loss = alpha * loss + (1 - alpha) * loss_auc
 
         return loss
 
-    for inputs, labels in tqdm(train_loader, desc="Batch Progress"):
+    for inputs, labels in tqdm(train_loader, desc="Progress"):
 
         inputs, labels = inputs.to(device), labels.to(device)
 
 
         enable_running_stats(model)
         output = model(inputs).squeeze()
-        total_loss = calculate_loss(output, labels,loss_type,criterion, compute_auc=(loss_type == 'auc'))  
+        total_loss = calculate_loss(output, labels,loss_type,criterion)  
         total_loss.backward()
         optimizer.first_step(zero_grad=True)
 
         disable_running_stats(model) 
         output = model(inputs).squeeze()
-        total_loss = calculate_loss(output, labels,loss_type,criterion, compute_auc=(loss_type == 'auc'))
+        total_loss = calculate_loss(output, labels,loss_type,criterion)
         total_loss.backward()
         optimizer.second_step(zero_grad=True)
 
@@ -121,18 +110,19 @@ def train_epoch(model, optimizer, scheduler, criterion, train_loader,loss_type):
 
     # Compute metrics
     acc = accuracy_score(all_labels, all_predictions)
-    auc = roc_auc_score(all_labels, all_predictions)
     f1 = f1_score(all_labels, all_predictions)
 
+    # For TPR (Sensitivity) and FOR calculation, you might need confusion matrix
     tn, fp, fn, tp = confusion_matrix(all_labels, all_predictions).ravel()
     tpr = tp / (tp + fn)  # True Positive Rate
     fpr = fp / (fp + tn)  # False Positive Rate
-    return  total_loss_accumulator / len(train_loader), acc, auc, tpr, fpr, f1
+    return  total_loss_accumulator / len(train_loader), acc, tpr, fpr, f1
 
-def evaluate(model, val_loader):
+def evaluate(model,val_loader):
     model.eval()
     all_labels = []
     all_probabilities = []  # Use this to store probabilities for all samples
+  
 
 
     with torch.no_grad():
@@ -141,8 +131,7 @@ def evaluate(model, val_loader):
 
             output = model(inputs).squeeze()
             probabilities = torch.sigmoid(output)
-
-
+            
             # Collect probabilities for each batch
             all_probabilities.append(probabilities.cpu().numpy())  # Store as NumPy array
             all_labels.extend(labels.cpu().numpy())
@@ -160,28 +149,33 @@ def evaluate(model, val_loader):
     f1_positive = f1_score(all_labels, predicted_labels, pos_label=1)
     f1_negative = f1_score(all_labels, predicted_labels, pos_label=0)
     f1_macro = f1_score(all_labels, predicted_labels, average='macro')
+    
 
     return  acc, auc, f1_positive, f1_negative, f1_macro
 
 
 
 def model_trainer(loss_type, batch_size=64, num_epochs=64):
+    seed = 5
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
     # Move model to GPU
     model = DFADModel().to(device)
     train_dataset = UniAttackDataset(
-    hdf5_filename='data/train_clip.h5',
-    labels_filename='data/train.txt',
+    hdf5_filename='train_clip.h5',
+    labels_filename='train.txt',
     dataset_name='train_features'
 )
     val_dataset = UniAttackDataset(
-    hdf5_filename='data/val_clip.h5',
-    labels_filename='data/val.txt',
+    hdf5_filename='val_clip.h5',
+    labels_filename='val.txt',
     dataset_name='val_features'
 )
     
 
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-    val_loader = DataLoader(val_dataset, batch_size=batch_size,shuffle=False)
+    train_loader = DataLoader(train_dataset, batch_size=batch_size,num_workers=32, shuffle=True)
+    val_loader = DataLoader(val_dataset, batch_size=batch_size,num_workers=32, shuffle=False)
 
 
     # Prepare data loaders
@@ -203,16 +197,16 @@ def model_trainer(loss_type, batch_size=64, num_epochs=64):
         for epoch in range(num_epochs):
             epoch_str = str(epoch).zfill(4)
             print(epoch_str)
-            train_loss, train_acc, train_auc, train_tpr, train_fpr, train_f1 = train_epoch(model, optimizer, scheduler, criterion,train_loader,loss_type)
+            train_loss, train_acc,  train_tpr, train_fpr, train_f1 = train_epoch(model, optimizer, scheduler, criterion,train_loader,loss_type)
 
-            # val_loss, accuracy, auc= evaluate(model, criterion, val_loader)
+            # accuracy, auc= evaluate(model, criterion, val_loader)
             acc, auc, f1_positive, f1_negative, f1_macro = evaluate(model, val_loader)
     
 
             # Write metrics to console and file
             metrics_str = (
                 f'Epoch: {epoch_str}\n'
-                f'Train Loss: {train_loss:.6f}, ACC: {train_acc:.6f}, AUC: {train_auc:.6f}, TPR: {train_tpr:.6f}, FPR: {train_fpr:.6f}, F1: {train_f1:.6f}\n'
+                f'Train Loss: {train_loss:.6f}, ACC: {train_acc:.6f},  TPR: {train_tpr:.6f}, FPR: {train_fpr:.6f}, F1: {train_f1:.6f}\n'
                 f"Val ACC: {acc}, AUC: {auc}, f1_positive: {f1_positive}, f1_negative: {f1_negative}, F1: {f1_macro}\n\n"
             )
             print(metrics_str)
@@ -230,4 +224,4 @@ def model_trainer(loss_type, batch_size=64, num_epochs=64):
 
 if __name__ == '__main__':
 
-    model_trainer(loss_type='erm', batch_size=32, num_epochs=32)
+    model_trainer(loss_type='dag', batch_size=32, num_epochs=32)
