@@ -1,5 +1,10 @@
 # Robust COVID-19 Detection in CT Image with CLIP
 
+Li Lin, Yamini Sri Krubha, Zhenhuan Yang, Cheng Ren, Xin Wang, Shu Hu
+_________________
+
+This repository is the official implementation of our paper [Robust COVID-19 Detection in CT Images with CLIP] (https://arxiv.org/abs/2403.08947).
+
 ### 1. Data Preparation
 * [Data is provided by the 4th COV19D Competition](https://mlearn.lincoln.ac.uk/ai-mia-cov19d-competition/), from [paper](https://arxiv.org/pdf/2403.02192v2.pdf). 
 
@@ -66,6 +71,16 @@ Execute [predict_CT_scans.py](./predict_CT_scans.py) will generate a CSV file th
 ```python
 python predict_CT_scans.py
 ```
-
+## Citation
+Please kindly consider citing our papers in your publications. 
+```bash
+@article{lin2024robust,
+      title={Robust COVID-19 Detection in CT Images with CLIP}, 
+      author={Li Lin and Yamini Sri Krubha and Zhenhuan Yang and Cheng Ren and Xin Wang and Shu Hu},
+      year={2024},
+      eprint={2403.08947},
+      archivePrefix={arXiv},
+}
+```
   
 
