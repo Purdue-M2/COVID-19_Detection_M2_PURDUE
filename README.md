@@ -1,4 +1,4 @@
-# Robust COVID-19 Detection in CT Image with CLIP
+# Robust COVID-19 Detection in CT Images with CLIP
 
 Li Lin, Yamini Sri Krubha, Zhenhuan Yang, Cheng Ren, Xin Wang, Shu Hu
 _________________
