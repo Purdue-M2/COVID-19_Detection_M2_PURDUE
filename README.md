@@ -3,7 +3,7 @@
 Li Lin, Yamini Sri Krubha, Zhenhuan Yang, Cheng Ren, Xin Wang, Shu Hu
 _________________
 
-This repository is the official implementation of our paper [Robust COVID-19 Detection in CT Images with CLIP] (https://arxiv.org/abs/2403.08947).
+This repository is the official implementation of our paper [Robust COVID-19 Detection in CT Images with CLIP](https://arxiv.org/abs/2403.08947).
 
 ### 1. Data Preparation
 * [Data is provided by the 4th COV19D Competition](https://mlearn.lincoln.ac.uk/ai-mia-cov19d-competition/), from [paper](https://arxiv.org/pdf/2403.02192v2.pdf). 
