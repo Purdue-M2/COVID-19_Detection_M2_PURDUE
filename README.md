@@ -8,7 +8,8 @@ This repository is the official implementation of our paper [Robust COVID-19 Det
 ### 1. Data Preparation
 * [Data is provided by the 4th COV19D Competition](https://mlearn.lincoln.ac.uk/ai-mia-cov19d-competition/), from [paper](https://arxiv.org/pdf/2403.02192v2.pdf). 
 
-* After getting the Covid-19 CT scan data, use [CLIP ViT L/14](https://github.com/openai/CLIP) to extract image features and save them into h5 file (e.g., train_clip.h5 and val_clip.h5) by executing [clip_feature.py](./clip_feature.py). 
+* After getting the Covid-19 CT scan data, use [CLIP ViT L/14](https://github.com/openai/CLIP) to extract image features and save them into h5 file (e.g., train_clip.h5 and val_clip.h5) by executing [clip_feature.py](./clip_feature.py).
+Note: medical images, such as CT scans, are one-channel images; in [clip_feature.py](./clip_feature.py), we convert them to 3 channels; all 3 channels are the same value.
 ```python
 python clip_feature.py
 ```
